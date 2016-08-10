@@ -58,13 +58,13 @@ elif [[ $SUBCOMMAND == "start" ]]; then
     echo "   git cherry-pick --no-commit $commit..bioc/devel"
     echo "   git reset"
     echo "   git add -p"
-    echo "   git commit -am \"Cherry-picked commits from Bioconductor SVN\""
+    echo "   git commit -am \"git-bioc: Cherry-picked commits from Bioconductor SVN\""
     echo "   git bioc import finish"
   else
     git cherry-pick --no-commit $commit..bioc/devel
     git reset
     git add -p
-    git commit -am "Cherry-picked commits from Bioconductor SVN"
+    git commit -am "git-bioc: Cherry-picked commits from Bioconductor SVN"
     echo "Bioconductor SVN commit imports ready to be merged into master"
     echo "Validate 'git diff master bioc/tmp-import', then run"
     echo "   git bioc import finish"

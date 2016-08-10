@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+bioc_assert
+
+function usage {
+    echo "Usage: git bioc export [start|finish|abort]"
+    exit 1
+}
+
+if [ $# -lt 1 ]; then
+	usage
+	exit 1
+fi
+
+SUBCOMMAND="$1"; shift
+
+if [[ $SUBCOMMAND == "abort" ]]; then
+  ## Nothing to do?
+  git branch -a | grep -q -F "bioc/tmp-export"
+  if [ $? -ne 0 ]; then
+      mecho "Nothing to abort. Skipping ..."
+      exit 1
+  fi
+  
+  git checkout master 2> /dev/null
+  git branch -d bioc/tmp-export
+elif [[ $SUBCOMMAND == "start" ]]; then
+  ## Nothing to do?
+  git branch -a | grep -q -F "bioc/tmp-export"
+  if [ $? -eq 0 ]; then
+      mecho "'git bioc export start' already active."
+      exit 1
+  fi
+  
+  git checkout bioc/devel 2> /dev/null
+  git checkout -b bioc/tmp-export
+  git checkout master -- *
+  git status
+  
+  option=$1
+  if [[ $option == "--manual" ]]; then
+    echo
+    echo "- Suggested export commands (in order):"
+    echo "   git diff bioc/devel"
+    echo "   git commit -am \"git-bioc: Copied updates from Git master branch to Bioconductor SVN\""
+    echo "   git bioc export finish"
+  else
+    git commit -am "git-bioc: Copied updates from Git master branch to Bioconductor SVN"
+    echo "Git master branch exports ready to be merged into Bioconductor SVN."
+    echo "Validate 'git diff bioc/devel bioc/tmp-export', then run"
+    echo "   git bioc export finish"
+  fi
+  
+elif [[ $SUBCOMMAND == "finish" ]]; then
+  ## Nothing to do?
+  git branch -a | grep -q -F "bioc/tmp-export"
+  if [ $? -ne 0 ]; then
+      mecho "'git bioc export' not active."
+      exit 1
+  fi
+  
+  git checkout bioc/devel 2> /dev/null
+  git merge bioc/tmp-export
+  git branch -d bioc/tmp-export
+fi
