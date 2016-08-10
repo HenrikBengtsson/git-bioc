@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+
+# Setup the GITCMD_DIR for different operating systems.
+# This is mostly to make sure that we get the correct directory when the
+# git-bioc file is a symbolic link
+case $(uname -s) in
+Linux)
+	export GITCMD_DIR=$(dirname "$(readlink -e "$0")")
+	;;
+FreeBSD|OpenBSD|NetBSD)
+	export FLAGS_GETOPT_CMD='/usr/local/bin/getopt'
+	export GITCMD_DIR=$(dirname "$(realpath "$0")")
+	;;
+Darwin)
+	PRG="$0"
+	while [ -h "$PRG" ]; do
+		link=$(readlink "$0")
+		if expr "$link" : '/.*' > /dev/null; then
+			PRG="$link"
+		else
+			PRG="$(dirname "$PRG")/$link"
+		fi
+	done
+	export GITCMD_DIR=$(dirname "$PRG")
+	;;
+*MINGW*)
+	export GITCMD_DIR=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+	pwd () {
+		builtin pwd -W
+	}
+	;;
+*)
+	# The sed expression here replaces all backslashes by forward slashes.
+	# This helps our Windows users, while not bothering our Unix users.)
+	export GITCMD_DIR=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+	;;
+esac
+
+
+function mecho {
+    >&2 echo "$*"
+}
+
+function mcat {
+    >&2 cat $*
+}
+
+function bioc_branches {
+    git branch | sed -E 's/([*]|)[ ]+//g' | grep -E "^bioc/(devel|release-[0-9][.][0-9])$"
+}
+
+function bioc_assert {
+    bioc_branches | grep -q -E "^bioc/devel$"
+    if [ $? -ne 0 ]; then
+	mecho "Local Git repository does not seem to be a Bioconductor Git repository"
+	mecho "Did you forget to run 'git bioc init'?"
+	exit 1
+    fi
+}
+
+function bioc_assert_not {
+    bioc_branches | grep -q -E "^bioc/devel$"
+    if [ $? -eq 0 ]; then
+	mecho "Local Git repository appears to already be a Bioconductor Git repository. Skipping ..."
+	exit 1
+    fi
+}
+
+function bioc_was_bridged {
+    author=bioc-sync@bioconductor.org
+    git log --author=$author | grep -q $author
+}
+
+
+usage() {
+	echo "usage: git bioc <subcommand>"
+	echo
+	echo "Available subcommands are:"
+	echo "   import    Cherry-picks commits from Bioconductor SVN (into master branch)."
+	echo "   info      Show information about Bioconductor SVN."
+	echo "   init      Initialize a new git bioc repo."
+	echo "   pull      Update branch bioc/devel with devel on Bioconductor SVN server."
+	echo "   push      Commit bioc/devel updates to Bioconductor SVN server."
+}
+
+main() {
+	if [ $# -lt 1 ]; then
+		usage
+		exit 1
+	fi
+
+	SUBCOMMAND="$1"; shift
+	
+	SUBCMD=$GITCMD_DIR/git-bioc-$SUBCOMMAND
+	
+	if [ ! -e "$SUBCMD" ]; then
+		usage
+		exit 1
+	fi
+
+	if [[ "$SUBCOMMAND" == "init" ]]; then
+	    bioc_assert_not
+	    source $SUBCMD $*
+	elif [[ "$SUBCOMMAND" == "remove" ]]; then
+	    if [[ "$1" != "--force" ]]; then
+		mecho "git bioc remove requires --force"
+		exit 1
+	    fi
+	    shift
+	    bioc_assert
+	    source $SUBCMD $*
+	else
+	    bioc_assert
+	    source $SUBCMD $*
+	fi
+	
+}
+
+main "$@"

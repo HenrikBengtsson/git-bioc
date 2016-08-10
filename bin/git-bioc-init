@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+bioc_assert_not
+
+curl -O https://raw.githubusercontent.com/Bioconductor/mirror/master/update_remotes.sh
+bash update_remotes.sh
+rm update_remotes.sh
+
+for name in $(git branch | grep -E "^[ ]*(devel|release-[0-9][.][0-9])$"); do
+    echo $name
+    git branch -m $name bioc/$name
+done
+
+git checkout bioc/devel
+git svn rebase
+
+echo git bioc init ... DONE

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+bioc_assert
+
+git checkout bioc/devel
+git svn dcommit --add-author-from

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+bioc_assert
+
+git checkout bioc/devel
+
+errlog=/tmp/git-bioc-pull.err
+git svn rebase 2> $errlog
+if [ $? -ne 0 ]; then
+    mecho "ERROR: 'git svn rebase' failed with error message:"
+    mcat $errlog
+    if grep -q -F "Unable to determine upstream SVN information from working tree history" $errlog; then
+	mecho "SUGGESTION: From the error message, it looks like your Git and SVN have diverged beyond automatic recovery."
+	mecho
+	mecho "   git log --graph --decorate --pretty=oneline --abbrev-commit --all"
+	mecho
+	mecho "For more help, see https://www.bioconductor.org/developers/how-to/git-mirrors/"
+    fi
+    exit 1
+fi    

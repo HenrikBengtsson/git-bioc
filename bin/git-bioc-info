@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+bioc_assert
+
+echo "*** Bioconductor GitHub-SVN Bridge history (master branch):"
+git checkout master > /dev/null
+bioc_was_bridged
+if [ $? -eq 0 ]; then
+    echo "- YES (contains commits by Bioconductor GitHub-SVN Bridge - bioc-sync@bioconductor.org)"
+else
+    echo "- NO (no such commits)"
+fi
+echo
+    
+echo "*** Bioconductor SVN URLs:"
+git config --list | grep -E "^svn-remote[.](devel|release-).*[.]url="
+echo
+
+echo "*** Git-SVN branch tree:"
+git log --graph --decorate --pretty=oneline --abbrev-commit --all -10
+

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+bioc_assert
+
+git checkout master
+
+## Remove branches
+for name in $(bioc_branches); do
+    git branch --delete $name
+done
+
+## Remove remotes
+git remote remove bioc
+
+## Remove git-svn configs
+for name in $(git branch -a | sed -E 's/([*]|)[ ]+//g' | grep -E "^remotes/git-svn-(devel|release-[0-9][.][0-9])$"); do
+    echo $name
+    branch=$(echo $name | sed 's|remotes/git-svn-||g')
+    echo $branch
+    git config --unset svn-remote.$branch.url
+    git config --unset svn-remote.$branch.fetch
+#    git branch --delete $name
+done

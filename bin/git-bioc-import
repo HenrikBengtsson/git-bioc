@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+bioc_assert
+
+function usage {
+    echo "Usage: git bioc import [start|finish|abort]"
+    exit 1
+}
+
+if [ $# -lt 1 ]; then
+	usage
+	exit 1
+fi
+
+SUBCOMMAND="$1"; shift
+
+if [[ $SUBCOMMAND == "abort" ]]; then
+  ## Nothing to do?
+  git branch -a | grep -q -F "bioc/tmp-import"
+  if [ $? -ne 0 ]; then
+      mecho "Nothing to abort. Skipping ..."
+      exit 1
+  fi
+  
+  git checkout master 2> /dev/null
+  git branch -d bioc/tmp-import
+elif [[ $SUBCOMMAND == "start" ]]; then
+  ## Nothing to do?
+  git branch -a | grep -q -F "bioc/tmp-import"
+  if [ $? -eq 0 ]; then
+      mecho "'git bioc import start' already active."
+      exit 1
+  fi
+  
+  git checkout master 2> /dev/null
+  git checkout -b bioc/tmp-import
+  
+  echo "- Identifying matching bioc/devel commit"
+  search=$(git show --quiet --format=medium | grep -F "git-svn-id:" | sed -E 's/(^[ ]*|[ ]*$)//g')
+  echo "- Search pattern: '$search'"
+  if [[ -z $search ]]; then
+      mecho "ERROR: Empty search pattern!"
+      exit 1
+  fi
+  match=$(git log --grep="$search" bioc/devel)
+  if [[ -z $match ]]; then
+      mecho "ERROR: Failed to locate corresponding commit in bioc/devel branch"
+      exit 1
+  fi
+  commit=$(printf '%s' "${match[@]}" | head -1 | sed -E 's/commit[ ]*//g')
+  echo "- Located bioc/devel commit: $commit"
+  git show $commit
+
+  option=$1
+  if [[ $option == "--manual" ]]; then
+    echo
+    echo "- Suggested import commands (in order):"
+    echo "   git cherry-pick --no-commit $commit..bioc/devel"
+    echo "   git reset"
+    echo "   git add -p"
+    echo "   git commit -am \"Cherry-picked commits from Bioconductor SVN\""
+    echo "   git bioc import finish"
+  else
+    git cherry-pick --no-commit $commit..bioc/devel
+    git reset
+    git add -p
+    git commit -am "Cherry-picked commits from Bioconductor SVN"
+    echo "Bioconductor SVN commit imports ready to be merged into master"
+    echo "Validate 'git diff master bioc/tmp-import', then run"
+    echo "   git bioc import finish"
+  fi
+  
+elif [[ $SUBCOMMAND == "finish" ]]; then
+  ## Nothing to do?
+  git branch -a | grep -q -F "bioc/tmp-import"
+  if [ $? -ne 0 ]; then
+      mecho "'git bioc import' not active."
+      exit 1
+  fi
+  
+  git checkout master 2> /dev/null
+  git merge bioc/tmp-import
+  git branch -d bioc/tmp-import
+fi

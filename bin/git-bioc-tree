@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+bioc_assert
+
+git log --graph --decorate --pretty=oneline --abbrev-commit --all $*
+
