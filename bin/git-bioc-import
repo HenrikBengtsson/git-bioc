@@ -34,40 +34,58 @@ elif [[ $SUBCOMMAND == "start" ]]; then
   
   git checkout master 2> /dev/null
   git checkout -b bioc/tmp-import
-  
-  echo "- Identifying matching bioc/devel commit"
-  search=$(git show --quiet --format=medium | grep -F "git-svn-id:" | sed -E 's/(^[ ]*|[ ]*$)//g')
-  echo "- Search pattern: '$search'"
-  if [[ -z $search ]]; then
-      mecho "ERROR: Empty search pattern!"
-      exit 1
-  fi
-  match=$(git log --grep="$search" bioc/devel)
-  if [[ -z $match ]]; then
-      mecho "ERROR: Failed to locate corresponding commit in bioc/devel branch"
-      exit 1
-  fi
-  commit=$(printf '%s' "${match[@]}" | head -1 | sed -E 's/commit[ ]*//g')
-  echo "- Located bioc/devel commit: $commit"
-  git show $commit
 
   option=$1
-  if [[ $option == "--manual" ]]; then
-    echo
-    echo "- Suggested import commands (in order):"
-    echo "   git cherry-pick --no-commit $commit..bioc/devel"
-    echo "   git reset"
-    echo "   git add -p"
-    echo "   git commit -am \"git-bioc: Cherry-picked commits from Bioconductor SVN\""
-    echo "   git bioc import finish"
-  else
-    git cherry-pick --no-commit $commit..bioc/devel
-    git reset
-    git add -p
-    git commit -am "git-bioc: Cherry-picked commits from Bioconductor SVN"
+  if [[ $option == "--copy" ]]; then
+    echo "- Copying bioc/devel branch (as a single commit)"
+    git checkout bioc/devel -- *
+    git status
     echo "Bioconductor SVN commit imports ready to be merged into master"
+    echo "   git commit -am \"git-bioc: Copied updates from Bioconductor SVN to Git master branch\""
     echo "Validate 'git diff master bioc/tmp-import', then run"
     echo "   git bioc import finish"
+  elif [[ $option == "--cherry-pick-manual" || $option == "--cherry-pick-auto" ]]; then
+    echo "- Identifying bioc/devel commit matching master commit"
+    search=$(git show --quiet --format=medium | grep -F "git-svn-id:" | sed -E 's/(^[ ]*|[ ]*$)//g')
+    echo "- Search pattern: '$search'"
+    if [[ -z $search ]]; then
+        mecho "ERROR: Empty search pattern."
+        mecho "To clean up, run 'git bioc import abort'"
+        exit 1
+    else
+      match=$(git log --grep="$search" bioc/devel)
+      if [[ -z $match ]]; then
+        mecho "ERROR: Failed to locate corresponding commit in bioc/devel branch"
+        mecho "To clean up, run 'git bioc import abort'"
+        exit 1
+      fi
+      commit=$(printf '%s' "${match[@]}" | head -1 | sed -E 's/commit[ ]*//g')
+      echo "- Located bioc/devel commit: $commit"
+      git show $commit
+    
+      if [[ $option == "--cherry-pick-manual" ]]; then
+        echo
+        echo "- Suggested import commands (in order):"
+        echo "   git cherry-pick --no-commit $commit..bioc/devel"
+        echo "   git reset"
+        echo "   git add -p"
+        echo "   git commit -am \"git-bioc: Cherry-picked commits from Bioconductor SVN\""
+        echo "   git bioc import finish"
+      elif [[ $option == "--cherry-pick-auto" ]]; then
+        git cherry-pick --no-commit $commit..bioc/devel
+        git reset
+        git add -p
+        git commit -am "git-bioc: Cherry-picked commits from Bioconductor SVN"
+        echo "Bioconductor SVN commit imports ready to be merged into master"
+        echo "Validate 'git diff master bioc/tmp-import', then run"
+        echo "   git bioc import finish"
+      fi
+    fi
+  else
+    mecho "ERROR: Unknown 'git bioc import start' option: $option"
+    git checkout master 2> /dev/null
+    git branch -d bioc/tmp-import
+    exit 1
   fi
   
 elif [[ $SUBCOMMAND == "finish" ]]; then

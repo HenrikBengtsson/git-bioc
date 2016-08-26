@@ -62,4 +62,7 @@ elif [[ $SUBCOMMAND == "finish" ]]; then
   git checkout bioc/devel 2> /dev/null
   git merge bioc/tmp-export
   git branch -d bioc/tmp-export
+  echo "git bioc export finish: Successful"
+  echo "To push these updates to the Bioconductor SVN, do:"
+  echo "    git bioc push"
 fi
