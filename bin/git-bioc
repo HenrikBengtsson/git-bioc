@@ -76,8 +76,9 @@ usage() {
 	echo "usage: git bioc <subcommand>"
 	echo
 	echo "Available subcommands are:"
-	echo "   import    Cherry-picks commits from Bioconductor SVN (into master branch)."
-	echo "   info      Show information about Bioconductor SVN."
+	echo "   export    Copies updates from master branch to bioc/devel."
+	echo "   import    Cherry-picks commits from bioc/devel into master branch."
+	echo "   info      Show information about Bioconductor devel SVN."
 	echo "   init      Initialize a new git bioc repo."
 	echo "   pull      Update branch bioc/devel with devel on Bioconductor SVN server."
 	echo "   push      Commit bioc/devel updates to Bioconductor SVN server."
