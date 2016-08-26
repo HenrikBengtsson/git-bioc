@@ -51,11 +51,16 @@ $ git bioc pull
 ### Bioc-Git: Update master branch with bioc/devel branch
 To update the local `master` branch with updates on the local `bioc/devel` branch, do:
 ```sh
-$ git bioc pull
+$ git bioc import
 ```
 
 
 ### Git->Bioc: Update bioc/devel branch with master branch
+To update the local `bioc/devel` branch with updates on the local `master` branch, do:
+```sh
+$ git bioc export
+[...]
+```
 
 
 ### Git->Bioc: Push bioc/devel branch to Bioconductor SVN repository
