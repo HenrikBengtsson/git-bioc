@@ -4,3 +4,4 @@ bioc_assert
 
 git checkout bioc/devel
 git svn dcommit --add-author-from
+git checkout master
