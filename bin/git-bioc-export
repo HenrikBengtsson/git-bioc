@@ -48,7 +48,7 @@ elif [[ $SUBCOMMAND == "start" ]]; then
   else
     git commit -am "git-bioc: Copied updates from Git master branch to Bioconductor SVN"
     echo "Git master branch exports ready to be merged into Bioconductor SVN."
-    echo "Validate 'git diff bioc/devel bioc/tmp-export', then run"
+    echo "Validate 'git bioc export inspect', then run"
     echo "   git bioc export finish"
   fi
   
