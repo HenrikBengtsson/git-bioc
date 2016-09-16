@@ -3,7 +3,7 @@
 bioc_assert
 
 function usage {
-    echo "Usage: git bioc export [start|finish|abort]"
+    echo "Usage: git bioc export [start|inspect|finish|abort]"
     exit 1
 }
 
@@ -18,12 +18,13 @@ if [[ $SUBCOMMAND == "abort" ]]; then
   ## Nothing to do?
   git branch -a | grep -q -F "bioc/tmp-export"
   if [ $? -ne 0 ]; then
-      mecho "Nothing to abort. Skipping ..."
+      mecho "Nothing to abort. Did you forget 'git bioc export start'?"
       exit 1
   fi
   
   git checkout master 2> /dev/null
   git branch -d bioc/tmp-export
+  
 elif [[ $SUBCOMMAND == "start" ]]; then
   ## Nothing to do?
   git branch -a | grep -q -F "bioc/tmp-export"
@@ -51,11 +52,25 @@ elif [[ $SUBCOMMAND == "start" ]]; then
     echo "   git bioc export finish"
   fi
   
+elif [[ $SUBCOMMAND == "inspect" ]]; then
+  ## Nothing to do?
+  git branch -a | grep -q -F "bioc/tmp-export"
+  if [ $? -ne 0 ]; then
+      mecho "Nothing to inspect. Did you forget 'git bioc export start'?"
+      exit 1
+  fi
+
+  git diff bioc/devel bioc/tmp-export  
+
+  echo ""
+  echo "If the above 'git diff bioc/devel bioc/tmp-export' looks correct, then run"
+  echo "   git bioc export finish"
+  
 elif [[ $SUBCOMMAND == "finish" ]]; then
   ## Nothing to do?
   git branch -a | grep -q -F "bioc/tmp-export"
   if [ $? -ne 0 ]; then
-      mecho "'git bioc export' not active."
+      mecho "Nothing to finish. Did you forget 'git bioc export start'?"
       exit 1
   fi
   
