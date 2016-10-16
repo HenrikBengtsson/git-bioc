@@ -22,6 +22,8 @@ _I developed git-bioc mainly for my own needs_, because I couldn't remember all 
 * Exporting to Bioc SVN: All Git commits are incorporated into a single Bioconductor SVN commit.  The [SVN commit message is currently not that informative](https://github.com/Bioconductor-mirror/affxparser/commit/af05fcb413cff368c1f2bd0bd23031c2eb67a969).
 * Importing from Bioc SVN: All Bioconductor SVN commits are incorporated into a single Git commit.  The Git commit message is currently not that informative.
 
+_If your package didn't use the Git-SVN bridge in the past, the above / the current importation may not be optimal for you!_
+
 **WARNING**: Did you read the previous paragraph?  It is very important!  Make sure you understand it.
 
 
