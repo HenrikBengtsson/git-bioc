@@ -1,5 +1,5 @@
 # git-bioc
-The official way is to keep a Git repository in sync with a corresponding Bioconductor SVN repository is to make use of `git-svn` after proper [configuration](http://bioconductor.org/developers/how-to/git-mirrors/).  Such a Git repository can be hosted anywhere, including on GitHub.
+The official way to keep a Git repository in sync with a corresponding Bioconductor SVN repository is to make use of `git-svn` after proper [configuration](http://bioconductor.org/developers/how-to/git-mirrors/).  Such a Git repository can be hosted anywhere, including on GitHub.
 
 These `git-bioc` tools provides a set of Git commands that helps you keep the Git repository and the Bioconductor _devel_ SVN repository in sync.  They are meant to be intuitive and easy to remember.
 
