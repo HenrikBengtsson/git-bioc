@@ -67,20 +67,20 @@ svn-remote.release-3.3.url=https://hedgehog.fhcrc.org/bioconductor//branches/REL
 ```
 
 
-### Bioc-Git: Pull down all commits from the Bioconductor SVN repository
+### Bioc-to-Git: Pull down all commits from the Bioconductor SVN repository
 To update the local `bioc/devel` branch with what is on the Bioconductor SVN server, do:
 ```sh
 $ git bioc pull
 ```
 
-### Bioc-Git: Update master branch with bioc/devel branch
+### Bioc-to-Git: Update master branch with bioc/devel branch
 To update the local `master` branch with updates on the local `bioc/devel` branch, do:
 ```sh
 $ git bioc import
 ```
 
 
-### Git->Bioc: Update bioc/devel branch with master branch
+### Git-to-Bioc: Update bioc/devel branch with master branch
 To update the local `bioc/devel` branch with updates on the local `master` branch, do:
 ```sh
 $ git bioc export
@@ -88,7 +88,7 @@ $ git bioc export
 ```
 
 
-### Git->Bioc: Push bioc/devel branch to Bioconductor SVN repository
+### Git-to-Bioc: Push bioc/devel branch to Bioconductor SVN repository
 To push (formally svn commit) the local `bioc/devel` branch to the Bioconductor SVN server, do:
 ```sh
 $ git bioc push
